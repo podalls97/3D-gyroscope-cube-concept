@@ -13,11 +13,23 @@ function handleOrientation(event) {
   cube.style.transform = `rotateX(${xRotation}deg) rotateY(${yRotation}deg)`;
 }
 
-// Check if device orientation is supported
-if (window.DeviceOrientationEvent) {
-  // Attach the event listener for device orientation
+// iOS-specific permission handling
+if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+  document.body.addEventListener('click', async () => {
+    try {
+      const permission = await DeviceOrientationEvent.requestPermission();
+      if (permission === 'granted') {
+        window.addEventListener('deviceorientation', handleOrientation);
+      } else {
+        alert('Permission not granted for Device Orientation.');
+      }
+    } catch (error) {
+      console.error('Error requesting Device Orientation permission:', error);
+    }
+  });
+} else if (window.DeviceOrientationEvent) {
+  // Non-iOS devices
   window.addEventListener('deviceorientation', handleOrientation);
 } else {
-  // Display an error message if the feature is not supported
   alert('Device orientation is not supported on this device.');
 }
